@@ -74,3 +74,17 @@ loop = asyncio.get_event_loop()
 
 # schedule both the coroutines to run on the event loop
 loop.run_until_complete(asyncio.gather(coroutine_1(), coroutine_2()))
+
+# Important notes
+
+    # Calling a coroutine definition does not execute it, it initializes a coroutine object
+        # You await on coroutine objects, not coroutine definition
+
+    # Event loop runs tasks, not coroutine objects directly -- tasks are a wrapper around coroutine
+    # objects
+        # When you await coroutine_object, you essentially schedule a wrapper task
+        # to be run on the event loop immediately
+
+    # asyncio.sleep is a coroutine as well, provided by the asyncio library
+        # asyncio.sleep(2) initializes a coroutine object with a value of two seconds
+
