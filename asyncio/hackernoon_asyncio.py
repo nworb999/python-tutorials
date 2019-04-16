@@ -87,4 +87,53 @@ loop.run_until_complete(asyncio.gather(coroutine_1(), coroutine_2()))
 
     # asyncio.sleep is a coroutine as well, provided by the asyncio library
         # asyncio.sleep(2) initializes a coroutine object with a value of two seconds
+        # When you await on it, you give control of the event loop to it
+        # Sleep coroutine does not block the loop, it releases control, simply
+        # asking the loop to wake it up after the specified time
+        # When the time expires, it is given back the control and it immediately
+        # returns, thereby unblocking its caller (in the above example coroutine_1 or couroutine_2)
 
+    # The above example had three different tasks that ran on the event loop -- coroutine_1, 
+    # coroutine_2, and asyncio.sleep
+        # However, four different tasks ran on the loop, corresponding to the following
+        # coroutine objects -- coroutine_1() and coroutine_2(), and asyncio.sleep(4)
+        # and asyncio.sleep(5)
+
+    # Another way to schedule tasks (though not immediately) on the loop is using the ensure_future()
+    # or the AbstractEventLoop.create_task() methods, both of which accept a coroutine object
+
+# A more realistic yet simple example
+
+# this is a coroutine definition
+async def fake_network_request(request):
+    print('making network call for request:   ' + request)
+    # simulate network delay
+    await asyncio.sleep(1)
+
+    return 'got network response for request:   ' + request
+
+# this is a coroutine definition
+async def web_server_handler():
+    # schedule both the network calls in a non-blocking way
+
+    # ensure_future creates a task from the coroutine object, and schedules 
+    # it on the event loop
+    task1 = asyncio.ensure_future(fake_network_request('one'))
+
+    # another way to do the scheduling
+    task2 = asyncio.get_event_loop().create_task(fake_network_request('two'))
+
+    # simulate a no-op blocking task -- this gives a chance to the network requests scheduled above
+    # to be executed
+    await asyncio.sleep(0.5)
+
+    print('doing useful work while network calls are in progress...')
+
+    # wait for the network calls to complete -- time to step off the event loop using await
+    await asyncio.wait([task1, task2])
+
+    print(task1.result())
+    print(task2.result())
+
+loop = asyncio.get_event_loop()
+loop.run_until_complete(asyncio.ensure_future(web_server_handler()))
