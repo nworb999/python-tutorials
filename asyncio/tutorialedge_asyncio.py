@@ -29,17 +29,62 @@ import asyncio
 import time
 
 # Define a coroutine that takes in a future
-async def myCoroutine():
-    print('My coroutine rules :)')
+#async def myCoroutine():
+#    print('My coroutine rules :)')
 
 # Spin up a quick and simple event loop and run until completed
-print('Initializing event loop!')
-loop = asyncio.get_event_loop()
-print('Sleeping for a sec!')
-time.sleep(4)
-try:
-    loop.run_until_complete(myCoroutine())
-finally:
-    loop.close()
-    print('Loop finished!')
+#print('Initializing event loop!')
+#loop = asyncio.get_event_loop()
+#print('Sleeping for a sec!')
+#time.sleep(4)
+#try:
+#    loop.run_until_complete(myCoroutine())
+#finally:
+#    loop.close()
+#    print('Loop finished!')
 
+# Generally, we have two running options
+    # run_forever(), which runs until stop() is called
+    # run_until_complete(future) will only run our event loop until the future object passed is completed
+
+#async def work():
+#    while True:
+#        await asyncio.sleep(1)
+#        print("Task executed")
+
+#loop = asyncio.get_event_loop()
+#try:
+#    asyncio.ensure_future(work())
+#    loop.run_forever()
+#except KeyboardInterrupt:
+#    pass
+#finally:
+#    print("Closing loop!")
+#    loop.close()
+
+# Running multiple coroutines
+
+# You can do this by creating your x number of coroutines and have them run a while loop each
+# You would then call asyncio.ensure_future(function()) in order to enqueue them onto the loop and they would run
+# indefinitely after that point
+
+async def firstworker():
+    while True:
+        await asyncio.sleep(1)
+        print("First worker executed")
+
+async def secondworker():
+    while True:
+        await asyncio.sleep(1)
+        print("Second worker executed")
+
+loop = asyncio.get_event_loop()
+try:
+    asyncio.ensure_future(firstworker())
+    asyncio.ensure_future(secondworker())
+    loop.run_forever()
+except KeyboardInterrupt:
+    pass
+finally:
+    print("Closing loop")
+    loop.close()
